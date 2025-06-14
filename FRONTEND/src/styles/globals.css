@@ -1,0 +1,83 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Light theme - Cool palette (CodeSignal-like) */
+  --background: #f9f9fc;
+  --foreground: #1a1a1a;
+  --card: #ffffff;
+  --card-foreground: #1a1a1a;
+  --popover: #ffffff;
+  --popover-foreground: #1a1a1a;
+  --primary: #0061ff;
+  --primary-foreground: #ffffff;
+  --secondary: #f0f2f5;
+  --secondary-foreground: #1a1a1a;
+  --muted: #e3e8f0;
+  --muted-foreground: #64748b;
+  --accent: #6840ff;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #e3e8f0;
+  --input: #e3e8f0;
+  --ring: #0061ff;
+  --radius: 0.5rem;
+}
+
+.dark {
+  /* Dark theme - Cool palette (CodeSignal-like) */
+  --background: #1a1a1a;
+  --foreground: #ffffff;
+  --card: #2d2d2d;
+  --card-foreground: #ffffff;
+  --popover: #2d2d2d;
+  --popover-foreground: #ffffff;
+  --primary: #0061ff;
+  --primary-foreground: #ffffff;
+  --secondary: #2d2d2d;
+  --secondary-foreground: #ffffff;
+  --muted: #2d2d2d;
+  --muted-foreground: #a1a1aa;
+  --accent: #6840ff;
+  --accent-foreground: #ffffff;
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: #2d2d2d;
+  --input: #2d2d2d;
+  --ring: #0061ff;
+  --radius: 0.5rem;
+}
+
+* {
+  border-color: var(--border);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+}
+
+.text-gradient {
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+.animate-pulse {
+  animation: pulse 3s infinite;
+}
+
+.animation-delay-500 {
+  animation-delay: 1.5s;
+}
+
+.toast-persistent:hover {
+  opacity: 1 !important;
+}

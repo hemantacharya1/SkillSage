@@ -1,0 +1,267 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 🧠 AI-Augmented Coding Interview Platform – Project Requirement Document (v1.1)
+
+## 🔂️ Project Title
+
+**AI-Powered Coding Interview Platform**\
+Enterprise-focused HackerRank/CodeSignal alternative with Gemini integration.
+
+---
+
+## 🚀 Objective
+
+To develop a scalable, full-stack coding interview platform with:
+
+- Real-time collaboration (code + notes)
+- Post-interview AI feedback using Gemini
+- Secure authentication
+- Recruiter dashboard and interview lifecycle management
+
+---
+
+## 👥 Roles
+
+| Role          | Permissions                                                        |
+| ------------- | ------------------------------------------------------------------ |
+| **Recruiter** | Schedule interviews, manage candidates, trigger AI feedback        |
+| **Candidate** | Join sessions, solve coding problems, collaborate during interview |
+
+---
+
+## 🔐 Authentication
+
+| Feature        | Implementation                  |
+| -------------- | ------------------------------- |
+| Token Type     | Access Token (JWT)              |
+| Expiry         | 24 hours                        |
+| Storage        | `localStorage` (on frontend)    |
+| Reset Password | Via email with token-based link |
+| Social Login   | ❌ Not included                  |
+
+---
+
+## ↻ Interview Lifecycle
+
+```
+Scheduled → In Progress → Completed → Feedback Sent
+```
+
+| Stage         | Description                                       |
+| ------------- | ------------------------------------------------- |
+| Scheduled     | Created by recruiter; email invite sent           |
+| In Progress   | Candidate joins; timer and editor active          |
+| Completed     | Interview ends; candidate locked out              |
+| Feedback Sent | Recruiter reviews and sends AI-generated feedback |
+
+---
+
+## 🧹 Core Functional Features
+
+### 👤 Coding Interface (Interview Room)
+
+| Feature              | Implementation                                         |
+| -------------------- | ------------------------------------------------------ |
+| Code Editor          | Monaco Editor with Python, JavaScript, Java support    |
+| Code Execution       | Backend execution using a simple Judge0 or similar API |
+| Question Source      | Questions seeded in DB (not hardcoded for flexibility) |
+| Notes                | Shared notes via WebSocket                             |
+| Interview Timer      | Countdown synced with WebSocket                        |
+| Post-Session Lockout | Candidate cannot rejoin after completion               |
+
+---
+
+### 🤖 AI Evaluation (Gemini API)
+
+| Feature              | Spec                                                     |
+| -------------------- | -------------------------------------------------------- |
+| Evaluation Trigger   | Manual (by recruiter after submission)                   |
+| AI Output Format     | Markdown (easiest to render nicely on UI)                |
+| Quality Parameters   | Correctness, complexity, edge-case handling, readability |
+| Feedback Handling    | Stored in DB with timestamp                              |
+| Plagiarism Detection | ❌ Not included for now                                   |
+
+---
+
+### 📊 Recruiter Tools
+
+| Tool                  | Included |
+| --------------------- | -------- |
+| Filter Interviews     | ✅        |
+| Trigger Feedback      | ✅        |
+| Manual Feedback Edits | ✅        |
+| PDF Export            | ❌        |
+| Candidate Tags        | ❌        |
+
+---
+
+### 🗓️ Scheduling & Invites
+
+| Feature       | Implementation           |
+| ------------- | ------------------------ |
+| Email Invite  | Basic email via SMTP API |
+| Calendar Sync | ❌ Not included           |
+
+---
+
+## 📦 Tech Stack
+
+| Layer      | Technology                |
+| ---------- | ------------------------- |
+| Frontend   | React + Vite + Tailwind   |
+| Backend    | Spring Boot (Java)        |
+| Database   | PostgreSQL                |
+| Real-Time  | WebSockets (Spring Boot)  |
+| AI API     | Gemini                    |
+| Auth       | JWT (access tokens)       |
+| Deployment | Frontend → Vercel/Netlify |
+|            | Backend → EC2 with Docker |
+| CI/CD      | Manual Docker push/pull   |
+
+---
+
+## 🐳 Docker Setup
+
+A `docker-compose.yml` file will manage:
+
+- Spring Boot backend
+- PostgreSQL
+- Optional: Adminer or pgAdmin for DB inspection
+
+Frontend deployed separately (not containerized).
+
+---
+
+## 📟 Database Models (Simplified)
+
+### `User`
+
+```sql
+id | name | email | password | role (RECRUITER/CANDIDATE) | created_at
+```
+
+### `Interview`
+
+```sql
+id | recruiter_id | candidate_id | scheduled_time | duration | status | link_token
+```
+
+### `Question`
+
+```sql
+id | title | description | starter_code | language | difficulty
+```
+
+### `Submission`
+
+```sql
+id | interview_id | question_id | code | language | submitted_at
+```
+
+### `Feedback`
+
+```sql
+id | submission_id | ai_summary (Markdown) | reviewer_notes | created_at
+```
+
+---
+
+## 🌐 API Routes
+
+### 🗒️ Auth Routes (`/api/auth`)
+
+```http
+POST   /api/auth/register            → Register user
+POST   /api/auth/login               → Login and receive JWT
+POST   /api/auth/forgot-password     → Trigger reset email
+POST   /api/auth/reset-password      → Change password via token
+GET    /api/auth/me                  → Get current user info
+```
+
+---
+
+### 👨‍💼 Recruiter Routes (`/api/recruiter`)
+
+```http
+POST   /api/recruiter/interview               → Create new interview
+GET    /api/recruiter/interview/:id           → Get interview details
+GET    /api/recruiter/interviews              → List all interviews
+POST   /api/recruiter/interview/:id/send-invite → Send email invite
+POST   /api/recruiter/interview/:id/feedback  → Trigger AI evaluation
+GET    /api/recruiter/interview/:id/feedback  → Get feedback
+GET    /api/recruiter/submissions/:id         → View submitted code
+```
+
+---
+
+### 🧑‍💻 Candidate Routes (`/api/candidate`)
+
+```http
+GET    /api/candidate/interview/:token        → Join interview via token
+POST   /api/candidate/interview/:id/submit    → Submit code
+GET    /api/candidate/interview/:id           → Fetch interview data
+GET    /api/candidate/interview/:id/question  → Load coding question
+GET    /api/candidate/interview/:id/status    → Check session status
+```
+
+---
+
+### ↻ Real-Time Notes & Timer (WebSockets)
+
+- Namespace: `/ws/interview/:id`
+- Events:
+  - `noteUpdate`
+  - `timerStart`
+  - `timerEnd`
+  - `sessionLock`
+
+---
+
+## 📤 Deployment
+
+### Backend
+
+```bash
+docker-compose up --build
+# Includes: Spring Boot app + PostgreSQL
+```
+
+### Frontend
+
+- Deploy to **Netlify** or **Vercel**
+- Connect API via `VITE_API_URL` in `.env`
+
+---
+
+## ✅ Implementation Plan (Chronological)
+
+| Step                     | Action                                     |
+| ------------------------ | ------------------------------------------ |
+| ✅ Define PRD             | Complete                                   |
+| ⬛ Folder Structure       | Setup backend, frontend, shared utils      |
+| ⬛ DB Schema + Migrations | Create models and migration files          |
+| ⬛ Auth System            | JWT login + registration flow              |
+| ⬛ API Endpoints          | Build out all `/api` routes                |
+| ⬛ WebSocket Server       | Sync notes and timer                       |
+| ⬛ Gemini Integration     | Trigger feedback with Gemini API           |
+| ⬛ UI Screens             | Login, Dashboard, Interview, Feedback View |
+| ⬛ Docker Compose         | Setup EC2 deployment                       |
+| ⬛ Final Testing & Polish | User flows, bug fixes, responsiveness      |
+
+---
+
+Would you like this PRD exported to a `PROJECT_SPEC.md` or converted into GitHub issues automatically?
+
+And next, I can:
+
+- Scaffold folder structure
+- Generate DB schema
+- Write API stub controllers
+
+Let me know what you'd like next.
+
+
+

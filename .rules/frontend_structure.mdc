@@ -1,0 +1,184 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 📘 AI Agent Frontend Coding Rulebook
+
+### For: AI-Powered Coding Interview Platform (CodeSignal-like)
+
+**Version:** 1.0  
+**Last Updated:** 2025-06-13
+
+---
+
+## 🌟 Objective
+
+Guide frontend development for a large-scale AI-powered interview platform, enforcing consistent practices, avoiding hallucinated features, and mimicking the **design system and color palette of CodeSignal.com**.
+
+---
+
+---
+
+## 🎨 Design Language
+
+- Use **CodeSignal.com** as your visual reference.
+- Stick to a cool, clean palette (blues, purples, greys, white).
+- Tailwind themes should define color tokens (e.g., `primary`, `accent`, `bg-muted`).
+
+```js
+// tailwind.config.js (pseudo-theme example)
+colors: {
+  primary: '#0061ff',
+  accent: '#6840ff',
+  background: '#f9f9fc',
+  muted: '#e3e8f0',
+  ...
+}
+```
+
+---
+
+## 🧑‍💼 User Roles
+
+Support only **2 roles**: `candidate`, `recruiter`
+
+- Protect routes accordingly using `PrivateRoute` pattern or a wrapper HOC.
+- Redirect users based on their role post-login.
+
+---
+
+## 🚢 API Route Convention
+
+| API Type     | Pattern Example                          |
+| ------------ | ----------------------------------------- |
+| Auth         | `/api/auth/login`, `/api/auth/reset-password` |
+| Recruiter    | `/api/recruiter/interviews`, `/api/recruiter/feedback/:id` |
+| Candidate    | `/api/candidate/interview/:id`, `/api/candidate/submit/:id` |
+
+Use `axios.create()` for base instance.
+
+---
+
+## 🛋️ Folder Structure (Recommended)
+
+```
+src/
+├── assets/
+├── components/
+│   ├── common/
+│   └── recruiter/
+│   └── candidate/
+├── pages/
+│   ├── Auth/
+│   ├── Recruiter/
+│   └── Candidate/
+├── hooks/
+├── services/
+├── utils/
+├── constants/
+├── router/
+├── layouts/
+└── main.jsx
+```
+
+> ✅ Group features by domain, not by type (e.g., `Recruiter/InterviewPage.jsx` rather than all pages in one folder)
+
+---
+
+## 🔐 Authentication
+
+- Use JWT stored in `localStorage`.
+- Add Axios interceptor to attach token to protected routes.
+- Handle login, register, forgot/reset password flows.
+
+---
+
+## 🛆 Page Flow
+
+### 🔹 Recruiter
+
+1. Login → Recruiter Dashboard
+2. Create interview (title, candidate email, duration, question)
+3. See upcoming & past interviews (filter by status/date)
+4. View feedback for completed sessions
+5. Trigger AI feedback manually
+
+### 🔹 Candidate
+
+1. Open invite link → Join page
+2. See interview prompt (code + note + timer + video)
+3. Submit code when done (before time ends)
+4. Session auto-locks after timeout
+
+---
+
+## 💬 UI Components (Must-Have)
+
+- `CodeEditor` (using **Monaco Editor**)
+- `VideoCallPanel` (placeholder UI, real-time optional)
+- `SharedNoteEditor` (textarea with **WebSocket sync**)
+- `TimerBar` (live countdown)
+- `InterviewStatusCard`
+- `FeedbackViewer` (show **Markdown** from Gemini)
+- `InterviewCardList`, `InterviewFormModal`, etc.
+
+---
+
+## 🧠 AI Features UI
+
+| Feature          | Trigger                      | Display Format |
+| ---------------- | ---------------------------- | -------------- |
+| AI Feedback      | Button in Recruiter Panel    | **Markdown View**  |
+| Summary Report   | Show after interview ends    | Card List      |
+| Plagiarism Check | ❌ Not included in v1         | N/A            |
+
+---
+
+## 📂 Component Conventions
+
+- Use PascalCase for components: `InterviewForm.jsx`
+- Keep components atomic: no 500-line files
+- Co-locate styles and subcomponents if reusable
+- Separate form logic and validations using `react-hook-form` + `zod` (optional)
+
+---
+
+## 🔮 Markdown Viewer
+
+- Parse Gemini Markdown feedback with a safe viewer like `react-markdown`
+- Do not attempt to render executable code
+- Style with Tailwind typography plugin (if used)
+
+---
+
+## 🦜 WebSocket Handling
+
+- Used **only for**:
+  - Shared Notes (`noteUpdate`)
+  - Interview Timer (`timerStart`, `timerEnd`)
+  - Lock candidate session (`sessionLock`)
+
+- Connect via `/ws/interview/:id`
+- Use `useWebSocket` custom hook for reuse
+
+---
+
+## ❌ Anti-Hallucination Rules
+
+1. ❌ Do not implement chat, calendar sync, PDF export, or tagging features.
+2. ❌ Do not assume AI will provide structured JSON — parse **Markdown** response.
+3. ❌ Do not use uncontrolled inputs unless necessary.
+4. ❌ Never mix recruiter and candidate routes/views in UI.
+5. ❌ Don’t implement real-time code sync unless scoped as optional.
+
+---
+
+## ✅ Optional Enhancements (If Time Allows)
+
+| Feature                  | Status     |
+| ------------------------ | ---------- |
+| Framer Motion UX         | Optional   |
+| Dark Mode                | Optional   |
+
+

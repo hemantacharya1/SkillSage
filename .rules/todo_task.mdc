@@ -1,0 +1,108 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# ✅ Project Todo: AI-Augmented Coding Interview Platform
+
+This document defines the **development roadmap** of the AI-powered recruitment interview platform. It is split into **phases**, each containing grouped and logically ordered tasks. A coding agent should complete **one phase at a time**, mark it complete, and stop until reviewed.
+
+---
+
+## 🧱 Phase 1: Project Setup & Auth System
+
+### 🎯 Goal: Establish basic project structure, environment, and JWT-based authentication.
+
+- [ ] Initialize Spring Boot backend with PostgreSQL
+- [ ] Initialize Vite + React frontend with Tailwind CSS v3
+- [ ] Set up Docker Compose for backend + DB
+- [ ] Configure CORS, environment profiles, global exception handling
+- [ ] Set up database schema with users, roles (recruiter/candidate)
+- [ ] Implement JWT-based login/register/logout (no refresh tokens)
+- [ ] Add forgot/reset password functionality
+- [ ] Create email service with basic templates (reset password)
+- [ ] Implement API versioning and namespacing under `/api`
+- [ ] Configure Swagger/OpenAPI docs
+- [ ] Connect frontend auth pages to backend (login/register/reset)
+- [ ] Store token in localStorage and add Axios interceptor
+
+---
+
+## 🧑‍💼 Phase 2: Recruiter Interview Management
+
+### 🎯 Goal: Recruiters should be able to create, list, and manage interviews.
+
+- [ ] Create recruiter dashboard UI (interview list, create form)
+- [ ] Backend APIs:
+  - [ ] `POST /api/recruiter/interview`
+  - [ ] `GET /api/recruiter/interviews`
+  - [ ] `GET /api/recruiter/interview/:id`
+- [ ] Interview schema: title, candidate email, language, duration, scheduled time
+- [ ] Store hardcoded question(s) in DB
+- [ ] Send email invite to candidate with tokenized link
+- [ ] Add frontend form and table (with filtering)
+
+---
+
+## 🧪 Phase 3: Candidate Interview Interface
+
+### 🎯 Goal: Candidate should be able to join and take the interview.
+
+- [ ] Validate invite token and show candidate landing page
+- [ ] Candidate interface layout with:
+  - [ ] Monaco Editor with language selection
+  - [ ] Note editor (with WebSocket sync)
+  - [ ] Timer bar (interview duration)
+  - [ ] Video call panel (stub UI)
+- [ ] Code submission button
+- [ ] Backend endpoint: `POST /api/candidate/submit/:interviewId`
+- [ ] Lock submission after time ends (backend + frontend)
+- [ ] Store submitted code in DB
+
+---
+
+## 🧠 Phase 4: AI Feedback & Evaluation
+
+### 🎯 Goal: Recruiter should be able to trigger AI evaluation after interview.
+
+- [ ] Backend: Connect to Gemini API with key
+- [ ] Send code and question context, receive markdown feedback
+- [ ] Parse and store AI feedback in DB
+- [ ] API: `POST /api/recruiter/feedback/:interviewId`
+- [ ] Frontend: Show feedback in markdown viewer
+- [ ] Add feedback viewer component to recruiter dashboard
+
+---
+
+## 🛰️ Phase 5: Real-Time Collaboration Features
+
+### 🎯 Goal: Enable real-time collaboration tools.
+
+- [ ] Implement WebSocket setup on backend (`/ws/interview/:id`)
+- [ ] Sync shared notes between candidate and recruiter
+- [ ] Emit timer countdown events via WebSocket
+- [ ] Lock candidate UI after timeout
+- [ ] Add `useWebSocket` custom hook on frontend
+
+---
+
+## 🧹 Phase 6: Polish, Testing, and Deployment
+
+### 🎯 Goal: Final refinements, bug fixes, and production readiness.
+
+- [ ] Add role-based route protection on frontend
+- [ ] Add loading and error states
+- [ ] Add form validations (zod or native)
+- [ ] Clean up code, remove test data
+- [ ] Write README with setup instructions
+- [ ] Push backend image to EC2 via Docker manually
+- [ ] Deploy frontend to Vercel/Netlify
+- [ ] Final walkthrough: Recruiter → Schedule → Candidate → Submit → Feedback
+
+---
+
+Each phase should be **marked as completed by the agent before moving to the next**.
+
+✅ End of Phase Tasks
+
+

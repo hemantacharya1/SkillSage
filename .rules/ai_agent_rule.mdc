@@ -1,0 +1,127 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# 🤖 AI Agent Master Rule File: AI-Powered Coding Interview Platform
+
+**Version**: 1.0  
+**Last Updated**: 2025-06-13
+
+if stuck somewhere please ask and must not assume on your own and start coding always ask when stuck
+
+---
+
+## 📁 Core Files to Follow
+
+> You MUST reference the following documents throughout development:
+
+- ✅ `PRD.md` — Full Project Requirements & Feature Scope  
+- ✅ `Backend Rulebook.md` — Architecture, structure, and tech rules for backend  
+- ✅ `Frontend Rulebook.md` — UI/UX, design, and component rules for frontend  
+
+📌 Never assume anything outside these unless explicitly allowed or clarified.
+
+---
+
+## 🧠 Agent Behavior Guidelines
+
+### ✅ Work Phase-by-Phase
+- Follow tasks from `Todo-Phase-Plan.md` strictly in order.
+- After completing a phase, **STOP** and wait for manual review/approval.
+- Only after approval, mark the phase as ✅ `Completed` and proceed.
+
+### ✅ Ask Before You Assume
+- If uncertain about:
+  - APIs
+  - Field structures
+  - Component logic
+  - Flow of interview lifecycle
+> You must pause and ask for clarification.
+
+### ✅ Honor All Constraints
+- Only support 2 roles: `recruiter` and `candidate`.
+- Use only: JavaScript, Python, and Java in the code editor.
+- Use JWT (stored in `localStorage`) for auth; no refresh token logic.
+- No chat, calendar, PDF export, CI/CD, or tagging in this version.
+- Use Gemini API for AI feedback (expect Markdown, not JSON).
+
+---
+
+## ❌ Hallucination Blockers
+
+You **MUST NOT** do the following:
+
+| ❌ Don’t Do This                           | ✅ Instead Do This                        |
+|-------------------------------------------|-------------------------------------------|
+| Create new endpoints not in PRD            | Only use `/api/...`, recruiter/candidate scoped |
+| Add unlisted features (chat, audit logs)   | Ask if missing something                  |
+| Assume real-time sync unless scoped        | Only use WebSockets for notes + timer     |
+| Use unrelated libraries or design systems  | Follow CodeSignal-inspired UI via Tailwind |
+| Auto-format or structure Gemini responses  | Parse as Markdown only                    |
+
+---
+
+## 🧑‍💻 Tech Stack Constraints
+
+| Area        | Tech                        |
+|-------------|-----------------------------|
+| Frontend    | React + Vite + Tailwind v3  |
+| Backend     | Spring Boot + PostgreSQL    |
+| Realtime    | WebSocket (Spring + WS hook)|
+| AI Feedback | Gemini API (Markdown output)|
+| Auth        | JWT-based, stored in localStorage |
+| Deployment  | Frontend → Vercel/Netlify<br>Backend+DB → EC2 via Docker Compose |
+
+---
+
+## 🔐 Data Handling & Flow
+
+- Interview flow: `Scheduled → In Progress → Completed → Feedback Sent`
+- Interviews auto-lock after timeout
+- Recruiter triggers feedback manually
+- AI feedback and submissions are saved in DB
+
+---
+
+## 📤 Communication & Logs
+
+- Feedback must be manually reviewed before sending
+- Email invite system is included, but **no calendar sync**
+- Use plain SMTP or Spring email support
+
+---
+
+## 🛑 Stop Points
+
+You must HALT at:
+
+1. After each Phase in `Todo-Phase-Plan.md`
+2. When you hit an unclear API or logic decision
+3. Before integrating AI features if output format is ambiguous
+
+---
+
+## ✅ Optional Features (only if time allows)
+- Dark mode toggle
+- Framer Motion transitions
+- Markdown styling
+- Monaco Editor enhancements
+
+---
+
+## Final Note
+
+You are building an **AI-powered HackerRank/CodeSignal clone** — optimize for:
+- Simplicity
+- Clarity
+- Accuracy over cleverness
+
+Always favor maintainable, readable code over complex abstractions.
+
+---
+
+**END OF RULE FILE**
+
+
+ok

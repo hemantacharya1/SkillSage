@@ -1,0 +1,236 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+# 📘 AI Agent Backend Coding Rulebook
+
+### For: AI-Powered Coding Interview Platform
+
+**Version:** 1.0\
+**Last Updated:** 2025-06-13
+
+---
+
+## 🎯 Objective
+
+Provide strict and unambiguous coding guidelines for any AI coding agent working on the backend of this project, so it **does not hallucinate**, re-invent, or deviate from the intended architecture.
+
+---
+
+## ⚙️ Project Constraints
+
+- **Tech Stack:** Spring Boot (Java), PostgreSQL
+- **Authentication:** JWT-based (Access Token only, stored in `localStorage`)
+- **AI Integration:** Gemini API for post-submission evaluation
+- **Deployment:** Docker Compose on EC2 (manual push/pull)
+- **Frontend Deployment:** Vercel or Netlify
+- **Real-Time:** WebSocket used for interview timer & shared notes only
+
+---
+
+## 🧭 Folder Structure Rules
+
+### ✅ Use Package-by-Feature:
+
+Each major feature (e.g., auth, recruiter, candidate, interview, submission) must be in its own sub-package.
+
+```
+com.yourcompany.aiplatform/
+├── auth/
+├── recruiter/
+├── candidate/
+├── interview/
+├── submission/
+├── feedback/
+├── websocket/
+├── common/
+```
+
+**❌ Never group files by layers (e.g., all controllers in one place).**
+
+---
+
+## 📦 Inside Each Feature Package
+
+Each feature package must follow this structure:
+
+```
+feature/
+├── controller/
+├── service/
+├── dto/
+├── model/         ← Only if feature defines its own DB models
+├── repository/
+```
+
+> Example: `auth/service/AuthService.java`, `recruiter/dto/CreateInterviewRequest.java`
+
+---
+
+## 🛡️ Authentication Rules
+
+- Use `JWT` for access tokens.
+- Token expiration: **24 hours**
+- Store token on frontend via `localStorage`.
+- Spring Security must restrict all `/api/...` endpoints by role.
+
+### Auth Endpoints:
+
+```
+/api/auth/register
+/api/auth/login
+/api/auth/forgot-password
+/api/auth/reset-password
+```
+
+---
+
+## 🧾 API Route Convention
+
+- All routes must be prefixed with `/api`
+- Recruiter routes → `/api/recruiter/...`
+- Candidate routes → `/api/candidate/...`
+- Auth routes → `/api/auth/...`
+
+Use RESTful patterns:
+
+- `GET /api/recruiter/interviews`
+- `POST /api/candidate/interview/:id/submit`
+
+**❌ Never use snake\_case in URLs**
+
+---
+
+## 🔄 DTO Guidelines
+
+- Every public-facing API **must** use DTOs.
+- Use methods **inside DTOs** for mapping from/to entity.
+- Do **not** use MapStruct or libraries for mapping.
+
+Example:
+
+```java
+public static UserDTO from(User user) {
+    return new UserDTO(user.getId(), user.getEmail(), user.getName());
+}
+```
+
+---
+
+## 🎁 API Response Format
+
+All APIs must return this consistent response wrapper:
+
+```json
+{
+  "success": true,
+  "message": "Interview created successfully.",
+  "data": { ... }
+}
+```
+
+Create a `common.response.ApiResponse<T>` class for this.\
+Use `@RestControllerAdvice` and custom exceptions for uniform error handling.
+
+---
+
+## 📜 Swagger Support
+
+- Enable Swagger/OpenAPI from the start using SpringDoc.
+- Annotate all controller methods with summaries.
+
+> Do not hallucinate custom API doc formats. Stick with standard OpenAPI annotations.
+
+---
+
+## 🧠 Gemini Integration
+
+- Feedback must be stored in the DB.
+- Recruiter must manually trigger evaluation.
+- AI response format = Markdown (easy to display on frontend).
+- No plagiarism detection in v1.
+
+Use service: `feedback/service/GeminiEvaluationService.java`
+
+---
+
+## 🔌 WebSocket Rules
+
+- WebSocket is **only used** for:
+  - Shared notes (`noteUpdate`)
+  - Interview timer (`timerStart`, `timerEnd`)
+  - Lock candidate session (`sessionLock`)
+
+### Endpoint:
+
+```
+/ws/interview/:id
+```
+
+No need for WebSocket token-based auth unless security becomes a concern.
+
+---
+
+## 🐘 Database Rules
+
+- Use **PostgreSQL**
+- Table names should be `snake_case` plural (e.g., `interviews`, `submissions`)
+- Use `@Entity`, `@Table(name = "...")` and proper `@JoinColumn`
+
+No audit logs, transcripts, or snapshots are stored.
+
+---
+
+## 💌 Email Rules
+
+- Use basic SMTP integration.
+- Use `JavaMailSender`
+- Recruiter email invite will include the interview join link.
+- Email templates must be used for formatting (plain text is sufficient).
+
+---
+
+## 🔐 Security Rules
+
+- Use Spring Security + JWT filter
+- `@PreAuthorize` for route-level access control
+- Only authenticated users can access anything under `/api/...`
+
+No role = No access.
+
+---
+
+## 🐳 Docker & Deployment
+
+- Backend is containerized with Docker
+- Docker Compose includes:
+  - Spring Boot app
+  - PostgreSQL
+- Admin tools (like pgAdmin) are optional
+- No RDS is used
+- CI/CD not required; Docker images are manually pushed/pulled
+
+---
+
+## ⛔ Anti-Hallucination Rules
+
+1. ❌ **Never expose Entity classes to the client**
+2. ❌ **Never create routes not defined in PRD**
+3. ❌ **Never assume extra features (like tags, PDF, calendar sync)**
+4. ❌ **Do not write live code execution in-browser — it's backend-only via Judge0 or similar**
+5. ❌ **Do not write WebSocket for chat/collaboration outside notes/timer**
+
+---
+
+## 🧪 Optional Conventions
+
+| Concern          | Decision              |
+| ---------------- | --------------------- |
+| Logging          | Use SLF4J / `@Slf4j`  |
+| Email Templates  | Basic text format     |
+| DB Migration     | Add Flyway (optional) |
+| Password Hashing | Use BCrypt            |
+| Testing          | JUnit + Mockito       |
+
+
