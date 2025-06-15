@@ -1,6 +1,5 @@
 package com.skillsage.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -14,6 +13,7 @@ import com.skillsage.dto.response.AIFeedbackSummary;
 import com.skillsage.dto.response.CodeSubmissionTimeSpaceComplexityResponse;
 import com.skillsage.dto.response.HtmlAiResponse;
 import com.skillsage.dto.response.PlagiarismResponse;
+import com.skillsage.service.AiServiceImpl;
 
 import lombok.RequiredArgsConstructor;
 
@@ -21,32 +21,30 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @RequestMapping("/api/ai")
 public class AiServiceController {
-	
+
+	private final AiServiceImpl service;
+
 	@GetMapping("/detect-plagiarism/{id}")
-    public ResponseEntity<?> getPlagerimsResponse(@PathVariable(value = "id")Long id) {
-		List<PlagiarismResponse> res = new ArrayList<>();
-		PlagiarismResponse obj = new PlagiarismResponse(86, true, "he has plagrised","Two Sum");
-		res.add(obj);
+	public ResponseEntity<?> getPlagerimsResponse(@PathVariable(value = "id") Long id) {
+		List<PlagiarismResponse> res = service.detectPlagarism(id);
 		return ResponseEntity.ok(new MessageResponse("", res));
-    }
+	}
+
 	@GetMapping("/generate-summary/{id}")
-    public ResponseEntity<?> generateSummary(@PathVariable(value = "id")Long id) {
-		AIFeedbackSummary res = new AIFeedbackSummary("good code","5 star");
-    	return ResponseEntity.ok(new MessageResponse("",res));
-    }
+	public ResponseEntity<?> generateSummary(@PathVariable(value = "id") Long id) {
+		AIFeedbackSummary res = service.generateSummary(id);
+		return ResponseEntity.ok(new MessageResponse("", res));
+	}
+
 	@GetMapping("/generate-time-space-complexity/{id}")
-    public ResponseEntity<?> generateTimeSpaceComplexity(@PathVariable(value = "id")Long id) {
-    	CodeSubmissionTimeSpaceComplexityResponse res = new CodeSubmissionTimeSpaceComplexityResponse();
-    	res.setQuestionName("Two sum");
-    	res.setSpaceComplexity("O(1)");
-    	res.setTimeComplexity("O(n)");
-    	List<CodeSubmissionTimeSpaceComplexityResponse> list = new ArrayList<>();
-    	list.add(res);
-        return ResponseEntity.ok(new MessageResponse("", list));
-    }
+	public ResponseEntity<?> generateTimeSpaceComplexity(@PathVariable(value = "id") Long id) {
+		List<CodeSubmissionTimeSpaceComplexityResponse> list = service.getComplexityAnalysis(id);
+		return ResponseEntity.ok(new MessageResponse("", list));
+	}
+
 	@GetMapping("/code-quaility-chek/{id}")
-    public ResponseEntity<?> getInterviews(@PathVariable(value = "id")Long id) {
-        return ResponseEntity.ok(new MessageResponse("", new HtmlAiResponse("<h1>Hello</h1>")));
-    }
+	public ResponseEntity<?> getInterviews(@PathVariable(value = "id") Long id) {
+		return ResponseEntity.ok(new MessageResponse("", new HtmlAiResponse("<h1>Hello</h1>")));
+	}
 
 }
