@@ -6,10 +6,17 @@ import LandingPage from "./pages/LandingPage";
 import LoginPage from './pages/Auth/LoginPage';
 import RegisterPage from './pages/Auth/RegisterPage';
 import PrivateRoute from './components/layouts/PrivateRoute';
-import RecruiterLayout from './components/layouts/RecruiterLayout';
+import RecruiterLayout from './components/recruiter/RecruiterLayout';
 import CandidateLayout from './components/layouts/CandidateLayout';
 import RecruiterDashboard from './pages/Recruiter/Dashboard';
 import CandidateDashboard from './pages/Candidate/Dashboard';
+import InterviewRoom from './pages/Interview/InterviewRoom';
+import Questions from './pages/Recruiter/Questions';
+import Interviews from './pages/Recruiter/Interviews';
+import PastInterviews from './pages/Recruiter/PastInterviews';
+import CreateInterview from './pages/Recruiter/CreateInterview';
+import EditInterview from './pages/Recruiter/EditInterview';
+import ViewSubmission from './pages/Recruiter/ViewSubmission';
 import "./styles/globals.css";
 
 function App() {
@@ -28,6 +35,13 @@ function App() {
             <Route element={<PrivateRoute allowedRoles={['RECRUITER']} />}>
               <Route element={<RecruiterLayout />}>
                 <Route path="/recruiter/dashboard" element={<RecruiterDashboard />} />
+                <Route path="/recruiter/questions" element={<Questions />} />
+                <Route path="/recruiter/interviews" element={<Interviews />} />
+                <Route path="/recruiter/past-interviews" element={<PastInterviews />} />
+                <Route path="/recruiter/interviews/create" element={<CreateInterview />} />
+                <Route path="/recruiter/interviews/:id/edit" element={<EditInterview />} />
+                <Route path="/recruiter/interview/:interviewId" element={<InterviewRoom />} />
+                <Route path="/recruiter/past-interview/view/:interviewId" element={<ViewSubmission />} />
               </Route>
             </Route>
 
@@ -35,6 +49,7 @@ function App() {
             <Route element={<PrivateRoute allowedRoles={['CANDIDATE']} />}>
               <Route element={<CandidateLayout />}>
                 <Route path="/candidate/dashboard" element={<CandidateDashboard />} />
+                <Route path="/candidate/interview/:interviewId" element={<InterviewRoom />} />
               </Route>
             </Route>
 

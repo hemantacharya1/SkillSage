@@ -1,6 +1,6 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { userSlice } from "./features/user/userSlice";
-import interviewReducer from "./slices/interviewSlice";
+import interviewReducer from "./slices/interviewRoomSlice";
 import questionReducer from "./slices/questionSlice";
 import logger from "redux-logger";
 import { reduxLocalStorage } from "../imports/localStorage";
@@ -29,10 +29,9 @@ const store = configureStore({
   reducer: {
     user: userSlice.reducer,
     interview: interviewReducer,
-    question: questionReducer
+    question: questionReducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(logger),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(logger),
   preloadedState: loadFromLocalStorage(),
 });
 

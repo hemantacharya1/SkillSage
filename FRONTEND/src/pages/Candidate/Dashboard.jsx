@@ -1,35 +1,60 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import InterviewCard from '@/components/candidate/dashboard/InterviewCard';
-import { fetchInterviews } from '@/redux/slices/interviewSlice';
-import { Loader2, Calendar, Clock, CheckCircle, AlertCircle } from 'lucide-react';
-import { selectUser } from '@/redux/features/user/userSlice';
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import InterviewCard from "@/components/candidate/dashboard/InterviewCard";
+import { fetchInterviews } from "@/redux/slices/interviewSlice";
+import {
+  Loader2,
+  Calendar,
+  Clock,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
+import { selectUser } from "@/redux/features/user/userSlice";
+import useQuery from "@/hooks/useQuery";
 
 const CandidateDashboard = () => {
   const dispatch = useDispatch();
-  const [activeTab, setActiveTab] = useState('active');
-  const { interviews = [], loading = false, error = null } = useSelector((state) => state.interview);
+  const [activeTab, setActiveTab] = useState("active");
+  const {
+    data: interviews = [],
+    loading = false,
+    error = null,
+  } = useQuery("/api/interviews", {
+    cb: (data) => {
+      return data?.data?.data;
+    },
+  });
   const user = useSelector(selectUser);
 
   useEffect(() => {
     dispatch(fetchInterviews());
   }, [dispatch]);
 
-  const activeInterviews = interviews.filter(interview => 
-    interview.status === 'SCHEDULED' || interview.status === 'IN_PROGRESS'
+  const activeInterviews = interviews?.filter(
+    (interview) =>
+      interview.status === "SCHEDULED" || interview.status === "IN_PROGRESS"
   );
 
-  const pastInterviews = interviews.filter(interview => 
-    interview.status === 'COMPLETED' || interview.status === 'EXPIRED'
+  const pastInterviews = interviews?.filter(
+    (interview) =>
+      interview.status === "COMPLETED" || interview.status === "EXPIRED"
   );
 
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-[50vh] space-y-4">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="text-muted-foreground animate-pulse">Loading your interviews...</p>
+        <p className="text-muted-foreground animate-pulse">
+          Loading your interviews...
+        </p>
       </div>
     );
   }
@@ -49,7 +74,7 @@ const CandidateDashboard = () => {
       <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 p-8 text-white">
         <div className="relative z-10">
           <h2 className="text-4xl font-bold tracking-tight mb-2">
-            Welcome back, {user?.name || 'Candidate'}!
+            Welcome back, {user?.name || "Candidate"}!
           </h2>
           <p className="text-blue-100 text-lg">
             Manage your technical interviews and track your progress
@@ -67,8 +92,10 @@ const CandidateDashboard = () => {
                 <Calendar className="h-6 w-6 text-blue-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Total Interviews</p>
-                <p className="text-2xl font-bold">{interviews.length}</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Total Interviews
+                </p>
+                <p className="text-2xl font-bold">{interviews?.length}</p>
               </div>
             </div>
           </CardContent>
@@ -80,8 +107,10 @@ const CandidateDashboard = () => {
                 <Clock className="h-6 w-6 text-green-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Upcoming</p>
-                <p className="text-2xl font-bold">{activeInterviews.length}</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Upcoming
+                </p>
+                <p className="text-2xl font-bold">{activeInterviews?.length}</p>
               </div>
             </div>
           </CardContent>
@@ -93,8 +122,10 @@ const CandidateDashboard = () => {
                 <CheckCircle className="h-6 w-6 text-purple-600" />
               </div>
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Completed</p>
-                <p className="text-2xl font-bold">{pastInterviews.length}</p>
+                <p className="text-sm font-medium text-muted-foreground">
+                  Completed
+                </p>
+                <p className="text-2xl font-bold">{pastInterviews?.length}</p>
               </div>
             </div>
           </CardContent>
@@ -102,15 +133,19 @@ const CandidateDashboard = () => {
       </div>
 
       {/* Enhanced Tabs Section */}
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-6"
+      >
         <TabsList className="grid w-full grid-cols-2 h-12 bg-blue-50/50">
-          <TabsTrigger 
-            value="active" 
+          <TabsTrigger
+            value="active"
             className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm"
           >
             Active Interviews
           </TabsTrigger>
-          <TabsTrigger 
+          <TabsTrigger
             value="history"
             className="data-[state=active]:bg-white data-[state=active]:text-blue-600 data-[state=active]:shadow-sm"
           >
@@ -119,16 +154,19 @@ const CandidateDashboard = () => {
         </TabsList>
 
         <TabsContent value="active" className="space-y-4">
-          {activeInterviews.length > 0 ? (
-            activeInterviews.map(interview => (
+          {activeInterviews?.length > 0 ? (
+            activeInterviews.map((interview) => (
               <InterviewCard key={interview.id} interview={interview} />
             ))
           ) : (
             <Card className="bg-white/50 backdrop-blur-sm border-blue-100">
               <CardHeader>
-                <CardTitle className="text-xl text-blue-900">No Active Interviews</CardTitle>
+                <CardTitle className="text-xl text-blue-900">
+                  No Active Interviews
+                </CardTitle>
                 <CardDescription className="text-blue-700/70">
-                  You don't have any upcoming interviews. Check back later for new opportunities!
+                  You don't have any upcoming interviews. Check back later for
+                  new opportunities!
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -136,16 +174,19 @@ const CandidateDashboard = () => {
         </TabsContent>
 
         <TabsContent value="history" className="space-y-4">
-          {pastInterviews.length > 0 ? (
-            pastInterviews.map(interview => (
-              <InterviewCard key={interview.id} interview={interview} />
+          {pastInterviews?.length > 0 ? (
+            pastInterviews.map((interview) => (
+              <InterviewCard key={interview?.id} interview={interview} />
             ))
           ) : (
             <Card className="bg-white/50 backdrop-blur-sm border-blue-100">
               <CardHeader>
-                <CardTitle className="text-xl text-blue-900">No Interview History</CardTitle>
+                <CardTitle className="text-xl text-blue-900">
+                  No Interview History
+                </CardTitle>
                 <CardDescription className="text-blue-700/70">
-                  Your completed interviews will appear here. Keep up the good work!
+                  Your completed interviews will appear here. Keep up the good
+                  work!
                 </CardDescription>
               </CardHeader>
             </Card>
@@ -156,4 +197,4 @@ const CandidateDashboard = () => {
   );
 };
 
-export default CandidateDashboard; 
+export default CandidateDashboard;

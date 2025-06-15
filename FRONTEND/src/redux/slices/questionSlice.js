@@ -1,22 +1,20 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { questionService } from '@/services/question.service';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { questionService } from "@/services/question.service";
 
 export const fetchQuestions = createAsyncThunk(
-  'question/fetchQuestions',
+  "question/fetchQuestions",
   async () => {
     const questionsArray = await questionService.getQuestions();
     return questionsArray.data;
   }
 );
 
-console.log('hhhhhhhhhhhhhhhhh', fetchQuestions);
-
 const questionSlice = createSlice({
-  name: 'question',
+  name: "question",
   initialState: {
     questions: [],
     loading: false,
-    error: null
+    error: null,
   },
   reducers: {},
   extraReducers: (builder) => {
@@ -33,7 +31,7 @@ const questionSlice = createSlice({
         state.loading = false;
         state.error = action.error.message;
       });
-  }
+  },
 });
 
-export default questionSlice.reducer; 
+export default questionSlice.reducer;

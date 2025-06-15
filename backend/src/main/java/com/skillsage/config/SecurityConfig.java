@@ -29,7 +29,7 @@ public class SecurityConfig {
 				.authorizeHttpRequests(auth -> auth
 						.requestMatchers("/api/auth/register", "/api/auth/login",
 								"/api/auth/reset-password-sent-otp", "/api/auth/reset-password", "/swagger-ui.html",
-								"/swagger-ui/**", "/v3/api-docs/**")
+								"/swagger-ui/**", "/v3/api-docs/**", "/ws/**", "/topic/**", "/app/**")
 						.permitAll().requestMatchers(HttpMethod.GET, "/public/**").permitAll().anyRequest()
 						.authenticated())
 				.oauth2Login(oauth -> oauth.successHandler(oAuth2SuccessHandler))

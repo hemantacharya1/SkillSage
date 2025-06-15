@@ -2,8 +2,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Calendar, Clock, Building, ArrowRight, Video, FileText } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const InterviewCard = ({ interview }) => {
+  const navigate = useNavigate();
   const getStatusColor = (status) => {
     switch (status) {
       case 'SCHEDULED':
@@ -107,13 +109,21 @@ const InterviewCard = ({ interview }) => {
       </CardContent>
       <CardFooter className="flex justify-end gap-2 border-t border-blue-100/50 bg-blue-50/30">
         {interview.status === 'SCHEDULED' && (
-          <Button size="sm" className="bg-blue-600 hover:bg-blue-700 text-white">
+          <Button 
+            size="sm" 
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+            onClick={() => navigate(`/candidate/interview/${interview.id}`)}
+          >
             <Video className="w-4 h-4 mr-2" />
             Join Interview
           </Button>
         )}
         {interview.status === 'IN_PROGRESS' && (
-          <Button size="sm" className="bg-yellow-600 hover:bg-yellow-700 text-white">
+          <Button 
+            size="sm" 
+            className="bg-yellow-600 hover:bg-yellow-700 text-white"
+            onClick={() => navigate(`/candidate/interview/${interview.id}`)}
+          >
             <ArrowRight className="w-4 h-4 mr-2" />
             Continue Interview
           </Button>

@@ -1,11 +1,16 @@
-import { useEffect } from 'react';
-import { useNavigate, Outlet } from 'react-router-dom';
-import { useSelector } from 'react-redux';
-import { selectUser } from '@/redux/features/user/userSlice';
-import { useAuth } from '@/hooks/useAuth';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { useEffect } from "react";
+import { useNavigate, Outlet } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { selectUser } from "@/redux/features/user/userSlice";
+import { useAuth } from "@/hooks/useAuth";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const RecruiterLayout = () => {
   const navigate = useNavigate();
@@ -13,8 +18,8 @@ const RecruiterLayout = () => {
   const { logout } = useAuth();
 
   useEffect(() => {
-    if (user?.role !== 'RECRUITER') {
-      navigate('/auth/login');
+    if (user?.role !== "RECRUITER") {
+      navigate("/auth/login");
     }
   }, [user, navigate]);
 
@@ -31,13 +36,17 @@ const RecruiterLayout = () => {
             <div className="flex items-center gap-2">
               <h1 className="text-xl font-bold">SkillSage</h1>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-4 w-full justify-end">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                  <Button
+                    variant="ghost"
+                    className="relative h-8 w-8 rounded-full"
+                  >
                     <Avatar className="h-8 w-8">
                       <AvatarFallback>
-                        {user?.firstName?.[0]}{user?.lastName?.[0]}
+                        {user?.firstName?.[0]}
+                        {user?.lastName?.[0]}
                       </AvatarFallback>
                     </Avatar>
                   </Button>
@@ -61,4 +70,4 @@ const RecruiterLayout = () => {
   );
 };
 
-export default RecruiterLayout; 
+export default RecruiterLayout;

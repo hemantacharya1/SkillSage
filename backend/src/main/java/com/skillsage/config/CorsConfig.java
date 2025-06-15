@@ -21,7 +21,8 @@ public class CorsConfig {
 		// Dynamically allow all origins
 		config.addAllowedOriginPattern("http://localhost:3000");
 		config.addAllowedOriginPattern("http://localhost:5173"); // Matches all origins with http://
-
+		config.addAllowedOriginPattern("http://192.168.1.51:5173");
+		config.addAllowedOriginPattern("http://192.168.1.53:5173");
 		config.addAllowedMethod("GET");
 		config.addAllowedMethod("POST");
 		config.addAllowedMethod("PUT");

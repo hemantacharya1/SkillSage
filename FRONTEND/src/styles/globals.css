@@ -66,8 +66,13 @@ body {
 }
 
 @keyframes pulse {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 0.6; }
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+  }
 }
 
 .animate-pulse {
@@ -80,4 +85,23 @@ body {
 
 .toast-persistent:hover {
   opacity: 1 !important;
+}
+
+/* Fix for modal dialogs to prevent white space at the top */
+body:has([role="dialog"]) {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+  overflow: hidden;
+}
+
+/* Ensure dialog overlay has no spacing */
+[role="dialog"] + div {
+  margin-top: 0 !important;
+  padding-top: 0 !important;
+}
+
+/* Remove any spacing from dialog content */
+.fixed.z-50 {
+  margin-top: 0 !important;
+  /* padding-top: 0 !important; */
 }

@@ -1,14 +1,17 @@
 package com.skillsage.entity;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
-import com.skillsage.entity.enums.SubmissionStatus;
-
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,22 +20,21 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CodeSubmission {
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = {"interview_id", "candidate_id"}))
+public class InterviewSubmission {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
-    private String code;
-    private String language;
-    private String output;
-    private SubmissionStatus status; // SUBMITTED, EXECUTING, COMPLETED, ERROR
-    
+
     @ManyToOne
-    private Question question;
-    
+    private Interview interview;
+
     @ManyToOne
     private User candidate;
-    
-    // Timestamps
+
+    @OneToMany(mappedBy = "interviewSubmission", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QuestionSubmission> questionSubmissions;
+
     private LocalDateTime submittedAt;
 }
+

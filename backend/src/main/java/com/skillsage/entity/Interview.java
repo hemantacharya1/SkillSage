@@ -5,7 +5,6 @@ import java.util.List;
 
 import com.skillsage.entity.enums.InterviewStatus;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;

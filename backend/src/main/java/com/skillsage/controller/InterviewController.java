@@ -33,7 +33,7 @@ public class InterviewController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getInterviewById(@PathVariable Long id) {
+    public ResponseEntity<?> getInterviewById(@PathVariable(value = "id") Long id) {
     	InterviewResponse response = interviewService.getInterviewById(id);
         return ResponseEntity.ok(new MessageResponse("", response));
     }
@@ -41,7 +41,7 @@ public class InterviewController {
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('RECRUITER')")
     public ResponseEntity<?> updateInterview(
-            @PathVariable Long id,
+            @PathVariable(value = "id") Long id,
             @RequestBody UpdateInterviewRequest request) {
     	InterviewResponse response = interviewService.updateInterview(id, request);
         return ResponseEntity.ok(new MessageResponse("", response));

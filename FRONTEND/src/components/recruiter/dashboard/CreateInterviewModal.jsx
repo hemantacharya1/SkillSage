@@ -1,29 +1,52 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import DateTimePicker from "@/components/ui/dateTimePicker";
-import { toast } from 'sonner';
-import { Checkbox } from '@/components/ui/checkbox';
-import { fetchQuestions } from '@/redux/slices/questionSlice';
+import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
+import { fetchQuestions } from "@/redux/slices/questionSlice";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
-import { Loader2, Calendar, Clock, Mail, FileText, Tag, CheckCircle2 } from 'lucide-react';
+import {
+  Loader2,
+  Calendar,
+  Clock,
+  Mail,
+  FileText,
+  Tag,
+  CheckCircle2,
+} from "lucide-react";
+import moment from "moment";
 
 const CreateInterviewModal = ({ isOpen, onClose, onSubmit }) => {
   const dispatch = useDispatch();
-  const { questions = [], loading: questionsLoading = false } = useSelector((state) => state.question || {});
+  const { questions = [], loading: questionsLoading = false } = useSelector(
+    (state) => state.question || {}
+  );
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    candidateEmail: '',
+    title: "",
+    description: "",
+    candidateEmail: "",
     startTime: new Date(),
     duration: 30,
-    type: 'TECHNICAL',
-    questionIds: []
+    type: "TECHNICAL",
+    questionIds: [],
   });
 
   useEffect(() => {
@@ -34,24 +57,24 @@ const CreateInterviewModal = ({ isOpen, onClose, onSubmit }) => {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [name]: value
+      [name]: value,
     }));
   };
 
   const handleQuestionSelect = (questionId) => {
-    setFormData(prev => {
+    setFormData((prev) => {
       const currentQuestions = prev.questionIds;
       if (currentQuestions.includes(questionId)) {
         return {
           ...prev,
-          questionIds: currentQuestions.filter(id => id !== questionId)
+          questionIds: currentQuestions.filter((id) => id !== questionId),
         };
       } else if (currentQuestions.length < 3) {
         return {
           ...prev,
-          questionIds: [...currentQuestions, questionId]
+          questionIds: [...currentQuestions, questionId],
         };
       }
       return prev;
@@ -60,25 +83,29 @@ const CreateInterviewModal = ({ isOpen, onClose, onSubmit }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     try {
       await onSubmit({
         ...formData,
-        startTime: formData.startTime.toISOString(),
-        duration: parseInt(formData.duration)
+        startTime:moment(formData.startTime).format('YYYY-MM-DDTHH:mm:ss'),
+        duration: parseInt(formData.duration),
       });
     } catch (error) {
-      toast.error(error.message || 'Failed to create interview');
+      toast.error(error.message || "Failed to create interview");
     }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[900px] h-[80vh] p-0">
+      <DialogContent
+        className="sm:max-w-[900px] h-[80vh] p-0"
+        onClose={onClose}
+      >
         <div className="flex flex-col h-full">
           <DialogHeader className="px-6 py-4 border-b">
             <DialogTitle className="text-2xl">Create New Interview</DialogTitle>
           </DialogHeader>
-          
+
           <form onSubmit={handleSubmit} className="flex-1 overflow-hidden">
             <div className="grid grid-cols-2 h-full">
               {/* Left Column - Basic Details */}
@@ -86,7 +113,10 @@ const CreateInterviewModal = ({ isOpen, onClose, onSubmit }) => {
                 <div className="p-6 space-y-6">
                   <div className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="title" className="flex items-center gap-2">
+                      <Label
+                        htmlFor="title"
+                        className="flex items-center gap-2"
+                      >
                         <FileText className="w-4 h-4" />
                         Interview Title
                       </Label>
@@ -102,7 +132,10 @@ const CreateInterviewModal = ({ isOpen, onClose, onSubmit }) => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="description" className="flex items-center gap-2">
+                      <Label
+                        htmlFor="description"
+                        className="flex items-center gap-2"
+                      >
                         <FileText className="w-4 h-4" />
                         Description
                       </Label>
@@ -118,7 +151,10 @@ const CreateInterviewModal = ({ isOpen, onClose, onSubmit }) => {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="candidateEmail" className="flex items-center gap-2">
+                      <Label
+                        htmlFor="candidateEmail"
+                        className="flex items-center gap-2"
+                      >
                         <Mail className="w-4 h-4" />
                         Candidate Email
                       </Label>
@@ -141,12 +177,17 @@ const CreateInterviewModal = ({ isOpen, onClose, onSubmit }) => {
                       </Label>
                       <DateTimePicker
                         date={formData.startTime}
-                        setDate={(date) => setFormData({ ...formData, startTime: date })}
+                        setDate={(date) =>
+                          setFormData({ ...formData, startTime: date })
+                        }
                       />
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="duration" className="flex items-center gap-2">
+                      <Label
+                        htmlFor="duration"
+                        className="flex items-center gap-2"
+                      >
                         <Clock className="w-4 h-4" />
                         Duration (minutes)
                       </Label>
@@ -170,15 +211,23 @@ const CreateInterviewModal = ({ isOpen, onClose, onSubmit }) => {
                       </Label>
                       <Select
                         value={formData.type}
-                        onValueChange={(value) => setFormData({ ...formData, type: value })}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, type: value })
+                        }
                       >
                         <SelectTrigger>
                           <SelectValue placeholder="Select type" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="TECHNICAL">Technical Interview</SelectItem>
-                          <SelectItem value="BEHAVIORAL">Behavioral Interview</SelectItem>
-                          <SelectItem value="CODING">Coding Challenge</SelectItem>
+                          <SelectItem value="TECHNICAL">
+                            Technical Interview
+                          </SelectItem>
+                          <SelectItem value="BEHAVIORAL">
+                            Behavioral Interview
+                          </SelectItem>
+                          <SelectItem value="CODING">
+                            Coding Challenge
+                          </SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -190,7 +239,9 @@ const CreateInterviewModal = ({ isOpen, onClose, onSubmit }) => {
               <ScrollArea className="h-[calc(80vh-8rem)]">
                 <div className="p-6 space-y-4">
                   <div className="flex items-center justify-between">
-                    <Label className="text-lg font-semibold">Select Questions (Max 3)</Label>
+                    <Label className="text-lg font-semibold">
+                      Select Questions (Max 3)
+                    </Label>
                     <div className="text-sm text-muted-foreground">
                       {formData.questionIds.length}/3 selected
                     </div>
@@ -203,24 +254,31 @@ const CreateInterviewModal = ({ isOpen, onClose, onSubmit }) => {
                   ) : (
                     <div className="grid gap-4">
                       {questions.map((question) => (
-                        <Card 
+                        <Card
                           key={question.id}
                           className={`p-4 transition-all hover:shadow-md ${
-                            formData.questionIds.includes(question.id) 
-                              ? 'border-primary bg-primary/5' 
-                              : ''
+                            formData.questionIds.includes(question.id)
+                              ? "border-primary bg-primary/5"
+                              : ""
                           }`}
                         >
                           <div className="flex items-start gap-3">
                             <Checkbox
                               id={`question-${question.id}`}
-                              checked={formData.questionIds.includes(question.id)}
-                              onCheckedChange={() => handleQuestionSelect(question.id)}
-                              disabled={!formData.questionIds.includes(question.id) && formData.questionIds.length >= 3}
+                              checked={formData.questionIds.includes(
+                                question.id
+                              )}
+                              onCheckedChange={() =>
+                                handleQuestionSelect(question.id)
+                              }
+                              disabled={
+                                !formData.questionIds.includes(question.id) &&
+                                formData.questionIds.length >= 3
+                              }
                               className="mt-1"
                             />
                             <div className="flex-1 space-y-1">
-                              <Label 
+                              <Label
                                 htmlFor={`question-${question.id}`}
                                 className="text-base font-medium cursor-pointer"
                               >
@@ -246,8 +304,8 @@ const CreateInterviewModal = ({ isOpen, onClose, onSubmit }) => {
               <Button type="button" variant="outline" onClick={onClose}>
                 Cancel
               </Button>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={formData.questionIds.length === 0}
                 className="gap-2"
               >
@@ -262,4 +320,4 @@ const CreateInterviewModal = ({ isOpen, onClose, onSubmit }) => {
   );
 };
 
-export default CreateInterviewModal; 
+export default CreateInterviewModal;
