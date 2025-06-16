@@ -1,5 +1,6 @@
 package com.skillsage.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.skillsage.config.MessageResponse;
 import com.skillsage.dto.response.AIFeedbackSummary;
+import com.skillsage.dto.response.CodeQualityCheck;
 import com.skillsage.dto.response.CodeSubmissionTimeSpaceComplexityResponse;
 import com.skillsage.dto.response.HtmlAiResponse;
 import com.skillsage.dto.response.PlagiarismResponse;
@@ -44,7 +46,9 @@ public class AiServiceController {
 
 	@GetMapping("/code-quaility-chek/{id}")
 	public ResponseEntity<?> getInterviews(@PathVariable(value = "id") Long id) {
-		return ResponseEntity.ok(new MessageResponse("", new HtmlAiResponse("<h1>Hello</h1>")));
+		List<CodeQualityCheck> list = service.generateCodeQualityCheckResponse(id);
+		return ResponseEntity.ok(new MessageResponse("", list));
+		
 	}
 
 }

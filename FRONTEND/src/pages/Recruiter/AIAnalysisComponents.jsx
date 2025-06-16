@@ -262,7 +262,14 @@ export const TimeSpaceComplexity = ({ analysis }) => {
 };
 
 export const CodeQualityCheck = ({ analysis }) => {
-  if (!analysis?.html) {
+  // Normalize the analysis to an array for consistent rendering
+  const data = Array.isArray(analysis)
+    ? analysis
+    : analysis
+    ? [analysis]
+    : [];
+
+  if (data.length === 0) {
     return (
       <div className="p-6 text-center text-muted-foreground bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl">
         <Code2 className="w-8 h-8 mx-auto mb-2 text-gray-400" />
@@ -273,9 +280,19 @@ export const CodeQualityCheck = ({ analysis }) => {
 
   return (
     <div className="space-y-6">
-      <div className="p-4 rounded-xl bg-gradient-to-br from-green-50/80 to-green-100/80 border border-green-200 backdrop-blur-sm">
-        <div dangerouslySetInnerHTML={{ __html: analysis.html }} />
-      </div>
+      {data.map((item, idx) => (
+        <div key={idx} className="space-y-3 border-b pb-4 last:border-b-0">
+          <div className="flex items-center gap-2">
+            <Code2 className="w-5 h-5 text-green-600" />
+            <span className="font-semibold text-green-900">
+              {item.questionName || 'Unnamed Question'}
+            </span>
+          </div>
+          <div className="p-4 rounded-xl bg-gradient-to-br from-green-50/80 to-green-100/80 border border-green-200 backdrop-blur-sm text-sm">
+            {item.content || 'No details available'}
+          </div>
+        </div>
+      ))}
     </div>
   );
 };

@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skillsage.config.GeminiService;
 import com.skillsage.dto.response.AIFeedbackSummary;
+import com.skillsage.dto.response.CodeQualityCheck;
 import com.skillsage.dto.response.CodeSubmissionTimeSpaceComplexityResponse;
 import com.skillsage.dto.response.PlagiarismResponse;
 import com.skillsage.entity.CodeEmbedding;
@@ -149,27 +150,50 @@ public class AiServiceImpl {
 
 	private String plagarisimString(String questionTitle, String similarity, boolean isPlagiarized,
 			String candidateName) {
-		String prompt = String.format(
-				"""
-						Given the following data, generate a short plagiarism feedback message in natural English.
-						Mention the question title, similarity percentage, and whether it's likely to be plagiarism.
-						Be professional and helpful. here is example
 
-						if plagiiarized : user's submission falls under plagiarism as it 85 matches with other user hemant's submission,
-						it raises concern about the submission please check the submission.
+		String prompt = "";
+		if (isPlagiarized) {
+			prompt = String.format(
+					"""
+								You are a coding evaluator and must generate a short plagiarism feedback message in natural English using the provided data.
+								This message is for the recruiter, so it should be **professional**, **clear**, and **helpful**.
+								Always include:
+								- The question title
 
-						if not plagiarized : user's submission is valid and does not come under plagiarism the matching percent is low and it
-						is a valid submission and does not raises any concern as of now.
+								Data:
+								Question Title: %s
 
-							Question: %s
-							Similarity: %s
-							Plagiarized: %s
-							Similar To: %s
+								Example Response:
+									The submission for "%s" shows a low similarity score, with a unique approach to solving the problem. The logic and structure appear to be written independently, suggesting that the code is original and not plagiarized. Please check at your end as well.
 
-							Output:
-							<response here>
+								Output:
+								<your formatted response here>
+
 							""",
-				questionTitle, similarity, isPlagiarized ? "Yes" : "No", candidateName);
+					questionTitle, questionTitle);
+		} else {
+			prompt =
+
+					String.format(
+							"""
+										You are a coding evaluator and must generate a short plagiarism feedback message in natural English using the provided data.
+										This message is for the recruiter, so it should be **professional**, **clear**, and **helpful**.
+										Always include:
+										- The question title
+										- The similarity percentage
+
+										Data:
+										Question Title: %s
+										Similarity Percentage: %s
+										Example Response:
+											The submission for "%s" shows a HIGH similarity with existing known solutions. The structure and logic are nearly identical, with only minor changes in variable names and formatting. Based on this, it is likely that the code is plagiarized.Please check at your end as well
+
+										Output:
+										<your formatted response here>
+
+									""",
+							questionTitle, similarity, questionTitle);
+		}
 		String response = geminiService.generateResponse(prompt);
 		return response;
 	}
@@ -301,7 +325,58 @@ public class AiServiceImpl {
 		res.setTimeComplexity(timeComplexity);
 		return res;
 	}
-	
-	
 
+	public List<CodeQualityCheck> generateCodeQualityCheckResponse(Long interviewId) {
+		InterviewSubmission submission = interviewSubmissionRepo.findByInterviewId(interviewId).orElse(null);
+		if (submission == null) {
+			return null;
+		}
+		List<CodeQualityCheck> response = new ArrayList<>();
+		List<QuestionSubmission> questionSubmissions = submission.getQuestionSubmissions();
+		for (QuestionSubmission qs : questionSubmissions) {
+			CodeQualityCheck obj = new CodeQualityCheck();
+			String res = this.generateResponse(qs);
+			obj.setContent(res);
+			obj.setQuestionName(qs.getQuestion().getTitle());
+			response.add(obj);
+		}
+		return response;
+	}
+
+	private String generateResponse(QuestionSubmission q) {
+		String prompt = String.format(
+				"""
+
+						You are a senior coding evaluator. Your job is to analyze a candidate’s code submission for a specific programming question and provide clear, professional feedback intended for a recruiter.
+
+						You will be given:
+						- The coding **question**
+						- The candidate’s **code submission**
+
+						Based on this, generate a short paragraph (4–6 sentences) that highlights the overall **code quality**, including:
+						- **Correctness** (does it solve the problem as intended?)
+						- **Time and space complexity** (if obvious or relevant)
+						- **Readability and structure** (naming, formatting, logic clarity)
+						- **Edge case handling** (does it handle empty input, large input, etc.)
+						- Any **noteworthy issues or improvements** (e.g., redundant logic, hardcoded values)
+
+						This feedback should be understandable to non-technical recruiters but still insightful enough to support a hiring decision.
+
+						---
+
+						**Input:**
+						-Question Title: %s
+						- Question: %s
+						- Submission Code:
+							%s
+
+						---
+
+						**Output:**
+						<your detailed but concise code analysis>
+						""",
+				q.getQuestion().getTitle(), q.getQuestion().getDescription(), q.getCode());
+		String response = geminiService.generateResponse(prompt);
+		return response;
+	}
 }
