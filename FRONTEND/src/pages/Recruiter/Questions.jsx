@@ -42,6 +42,10 @@ const Questions = () => {
     description: "",
     language: "",
   });
+  // --- AI Question Generation State ---
+  const [aiPrompt, setAiPrompt] = useState("");
+  const [aiLoading, setAiLoading] = useState(false);
+  const [aiError, setAiError] = useState(null);
 
   const { data: questions = [], loading, error, refetch } = useQuery("/api/questions", {
     cb: (data) => data?.data?.data,
@@ -63,6 +67,39 @@ const Questions = () => {
       toast.success("Question deleted successfully");
     },
   });
+
+  // --- AI Question Generation Mutation ---
+  const aiGenerateMutation = useMutation();
+
+  // --- AI Question Generation Handler ---
+  const handleAIGenerate = async () => {
+    if (!aiPrompt.trim()) return;
+    setAiLoading(true);
+    setAiError(null);
+    try {
+      const res = await aiGenerateMutation.mutate({
+        url: "/api/questions/generate",
+        method: "POST",
+        data: { prompt: aiPrompt },
+      });
+      const data = res.data;
+      // Support both {title, description, programmingLanguage} and {programming_language}
+      const language = data.programmingLanguage || data.programming_language;
+      if (data && data.title && data.description && language) {
+        setFormData({
+          title: data.title,
+          description: data.description,
+          language: language.toLowerCase(),
+        });
+      } else {
+        throw new Error("AI did not return valid question data");
+      }
+    } catch (err) {
+      setAiError(err.error || err.message || "Failed to generate question");
+    } finally {
+      setAiLoading(false);
+    }
+  };
 
   const handleCreate = async (e) => {
     e.preventDefault();
@@ -174,64 +211,89 @@ const Questions = () => {
                 Create a new technical interview question
               </DialogDescription>
             </DialogHeader>
-            <form onSubmit={handleCreate}>
-              <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <Label htmlFor="title">Title</Label>
-                  <Input
-                    id="title"
-                    value={formData.title}
-                    onChange={(e) =>
-                      setFormData({ ...formData, title: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="description">Description</Label>
-                  <Textarea
-                    id="description"
-                    value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
-                    }
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="language">Programming Language</Label>
-                  <Select
-                    value={formData.language}
-                    onValueChange={(value) =>
-                      setFormData({ ...formData, language: value })
-                    }
-                    required
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select language" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="javascript">JavaScript</SelectItem>
-                      <SelectItem value="python">Python</SelectItem>
-                      <SelectItem value="java">Java</SelectItem>
-                      <SelectItem value="cpp">C++</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="submit" disabled={createMutation.loading}>
-                  {createMutation.loading ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating...
-                    </>
-                  ) : (
-                    "Create Question"
-                  )}
-                </Button>
-              </DialogFooter>
-            </form>
+            {/* --- AI Question Generation Input --- */}
+<form onSubmit={handleCreate}>
+  <div className="space-y-4 py-4">
+    <div className="space-y-2">
+      <Label htmlFor="ai-prompt">Create with AI</Label>
+      <div className="flex gap-2">
+        <Input
+          id="ai-prompt"
+          placeholder="Describe the question you want (e.g., 'Create a question about binary search in Python')"
+          value={aiPrompt}
+          onChange={e => setAiPrompt(e.target.value)}
+          disabled={aiLoading}
+        />
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleAIGenerate}
+          disabled={aiLoading || !aiPrompt.trim()}
+          className="shrink-0"
+        >
+          {aiLoading ? <Loader2 className="animate-spin h-4 w-4" /> : "Generate with AI"}
+        </Button>
+      </div>
+      {aiError && <div className="text-xs text-red-600 mt-1">{aiError}</div>}
+    </div>
+    <div className="space-y-4 py-4">
+      <div className="space-y-2">
+        <Label htmlFor="title">Title</Label>
+        <Input
+          id="title"
+          value={formData.title}
+          onChange={(e) =>
+            setFormData({ ...formData, title: e.target.value })
+          }
+          required
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          value={formData.description}
+          onChange={(e) =>
+            setFormData({ ...formData, description: e.target.value })
+          }
+          required
+        />
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="language">Programming Language</Label>
+        <Select
+          value={formData.language}
+          onValueChange={(value) =>
+            setFormData({ ...formData, language: value })
+          }
+          required
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select language" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="javascript">JavaScript</SelectItem>
+            <SelectItem value="python">Python</SelectItem>
+            <SelectItem value="java">Java</SelectItem>
+            <SelectItem value="cpp">C++</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+    <DialogFooter>
+      <Button type="submit" disabled={createMutation.loading}>
+        {createMutation.loading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Creating...
+          </>
+        ) : (
+          "Create Question"
+        )}
+      </Button>
+    </DialogFooter>
+  </div>
+</form>
           </DialogContent>
         </Dialog>
       </div>
