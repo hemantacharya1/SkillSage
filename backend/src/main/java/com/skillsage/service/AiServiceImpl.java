@@ -63,16 +63,16 @@ public class AiServiceImpl {
 			}
 
 			double plagiarismPercent = Math.round(maxSimilarity * 10000.0) / 100.0; // Round to 2 decimals
-			if (plagiarismPercent > 80) {
+			if (plagiarismPercent > 90) {
 				String message = this.plagarisimString(qs.getQuestion().getTitle(), String.valueOf(plagiarismPercent),
-						false, candidate.getEmail());
+						true, candidate.getEmail());
 				PlagiarismResponse obj = new PlagiarismResponse(plagiarismPercent, true, message,
 						qs.getQuestion().getTitle());
 				response.add(obj);
 			} else {
 				String message = this.plagarisimString(qs.getQuestion().getTitle(), String.valueOf(plagiarismPercent),
 						false, "none");
-				PlagiarismResponse obj = new PlagiarismResponse(0, false, message, qs.getQuestion().getTitle());
+				PlagiarismResponse obj = new PlagiarismResponse(plagiarismPercent, false, message, qs.getQuestion().getTitle());
 				response.add(obj);
 				continue;
 			}
@@ -152,7 +152,7 @@ public class AiServiceImpl {
 			String candidateName) {
 
 		String prompt = "";
-		if (isPlagiarized) {
+		if (!isPlagiarized) {
 			prompt = String.format(
 					"""
 								You are a coding evaluator and must generate a short plagiarism feedback message in natural English using the provided data.
