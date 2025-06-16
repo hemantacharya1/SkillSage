@@ -1,6 +1,6 @@
 # SkillSage
 
-![SkillSage Banner](./rules/projectimage.png)
+![projectimage](./.rules/projectimage.png)
 
 **SkillSage** is an enterprise-grade technical assessment and interview platform inspired by HackerRank and CodeSignal. It enables organizations to assess, interview, and hire top technical talent, while empowering candidates to develop and showcase their coding skills. SkillSage features live coding interviews, AI-powered analytics, real-time video calls, and a modern, intuitive user experience.
 
