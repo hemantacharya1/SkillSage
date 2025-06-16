@@ -21,10 +21,10 @@ import com.skillsage.dto.response.QuestionResponse;
 import com.skillsage.entity.Question;
 import com.skillsage.exception.BadRequestException;
 import com.skillsage.repository.QuestionRepository;
+import com.skillsage.service.AiServiceImpl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.RequestParam;
-
 
 @RestController
 @RequestMapping("/api/questions")
@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class QuestionController {
 
 	private final QuestionRepository questionRepo;
+	private final AiServiceImpl aiServiceImpl;
 
 	@PostMapping
 	public ResponseEntity<?> addQuestion(@RequestBody CreateQuestionRequest request) {
@@ -79,13 +80,12 @@ public class QuestionController {
 		}
 		return ResponseEntity.ok(new MessageResponse("", reslist));
 	}
-	
+
 	@PostMapping("/generate")
 	public ResponseEntity<?> generateWithAi(@RequestBody QuestionGenerate request) {
-		QuestionGenerateResponse obj = new QuestionGenerateResponse("afdaf","afdadf","Java");
+		QuestionGenerateResponse obj = aiServiceImpl.generateQuestionResponse(request.getPrompt());
 		return ResponseEntity.ok(obj);
 	}
-	
 
 	private QuestionResponse toResponse(Question q) {
 		QuestionResponse res = new QuestionResponse();

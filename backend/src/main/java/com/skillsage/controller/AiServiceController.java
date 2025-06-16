@@ -1,6 +1,5 @@
 package com.skillsage.controller;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -13,7 +12,6 @@ import com.skillsage.config.MessageResponse;
 import com.skillsage.dto.response.AIFeedbackSummary;
 import com.skillsage.dto.response.CodeQualityCheck;
 import com.skillsage.dto.response.CodeSubmissionTimeSpaceComplexityResponse;
-import com.skillsage.dto.response.HtmlAiResponse;
 import com.skillsage.dto.response.PlagiarismResponse;
 import com.skillsage.service.AiServiceImpl;
 

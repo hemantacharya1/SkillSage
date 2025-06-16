@@ -7,12 +7,15 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skillsage.config.GeminiService;
 import com.skillsage.dto.response.AIFeedbackSummary;
 import com.skillsage.dto.response.CodeQualityCheck;
 import com.skillsage.dto.response.CodeSubmissionTimeSpaceComplexityResponse;
 import com.skillsage.dto.response.PlagiarismResponse;
+import com.skillsage.dto.response.QuestionGenerateResponse;
 import com.skillsage.entity.CodeEmbedding;
 import com.skillsage.entity.InterviewSubmission;
 import com.skillsage.entity.QuestionSubmission;
@@ -72,7 +75,8 @@ public class AiServiceImpl {
 			} else {
 				String message = this.plagarisimString(qs.getQuestion().getTitle(), String.valueOf(plagiarismPercent),
 						false, "none");
-				PlagiarismResponse obj = new PlagiarismResponse(plagiarismPercent, false, message, qs.getQuestion().getTitle());
+				PlagiarismResponse obj = new PlagiarismResponse(plagiarismPercent, false, message,
+						qs.getQuestion().getTitle());
 				response.add(obj);
 				continue;
 			}
@@ -378,5 +382,37 @@ public class AiServiceImpl {
 				q.getQuestion().getTitle(), q.getQuestion().getDescription(), q.getCode());
 		String response = geminiService.generateResponse(prompt);
 		return response;
+	}
+
+	public QuestionGenerateResponse generateQuestionResponse(String request) {
+		String prompt = String.format(
+				"""
+						You are a coding question generator.
+
+						Given a topic or rough definition, generate a well-structured coding question.
+
+						Respond strictly in this JSON format:
+
+						{
+						  "title": "String - a short, descriptive title for the coding question",
+						  "description": "String - a complete problem statement, including input/output format, 1–2 examples, and relevant constraints",
+						  "programmingLanguage": "String - the target language (e.g., Java, Python, JavaScript)"
+						}
+
+						Topic: <<<%s>>>
+
+						DO NOT include any explanation, markdown, or extra text. Just return the raw JSON.
+										""",
+				request);
+		String response = geminiService.generateResponse(prompt).replaceAll("(?i)```json", "") // Remove ```json
+				.replaceAll("(?i)```", "") // Remove any remaining ```
+				.trim();
+		QuestionGenerateResponse res = null;
+		try {
+			res = objectMapper.readValue(response, QuestionGenerateResponse.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return res;
 	}
 }
