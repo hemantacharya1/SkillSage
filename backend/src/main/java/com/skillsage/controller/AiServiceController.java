@@ -5,11 +5,15 @@ import java.util.List;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.skillsage.config.MessageResponse;
+import com.skillsage.dto.request.CheckSubmission;
 import com.skillsage.dto.response.AIFeedbackSummary;
+import com.skillsage.dto.response.CheckSubmissionResponse;
 import com.skillsage.dto.response.CodeQualityCheck;
 import com.skillsage.dto.response.CodeSubmissionTimeSpaceComplexityResponse;
 import com.skillsage.dto.response.PlagiarismResponse;
@@ -48,5 +52,11 @@ public class AiServiceController {
 		return ResponseEntity.ok(new MessageResponse("", list));
 		
 	}
-
+	
+	@PostMapping("/check-submission")
+	public ResponseEntity<?> checkSubmission(@RequestBody CheckSubmission request) {
+		CheckSubmissionResponse obj = service.checkSubmission(request);
+		return ResponseEntity.ok(obj);
+		
+	}
 }

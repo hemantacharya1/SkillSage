@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -11,16 +12,20 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.skillsage.config.GeminiService;
+import com.skillsage.dto.request.CheckSubmission;
 import com.skillsage.dto.response.AIFeedbackSummary;
+import com.skillsage.dto.response.CheckSubmissionResponse;
 import com.skillsage.dto.response.CodeQualityCheck;
 import com.skillsage.dto.response.CodeSubmissionTimeSpaceComplexityResponse;
 import com.skillsage.dto.response.PlagiarismResponse;
 import com.skillsage.dto.response.QuestionGenerateResponse;
 import com.skillsage.entity.CodeEmbedding;
 import com.skillsage.entity.InterviewSubmission;
+import com.skillsage.entity.Question;
 import com.skillsage.entity.QuestionSubmission;
 import com.skillsage.entity.User;
 import com.skillsage.repository.InterviewSubmissionRepository;
+import com.skillsage.repository.QuestionRepository;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -35,6 +40,7 @@ public class AiServiceImpl {
 	private final EntityManager entityManager;
 	private final GeminiService geminiService;
 	private final ObjectMapper objectMapper = new ObjectMapper();
+	private final QuestionRepository questionRepo;
 
 	public List<PlagiarismResponse> detectPlagarism(Long interviewId) {
 
@@ -414,5 +420,59 @@ public class AiServiceImpl {
 			e.printStackTrace();
 		}
 		return res;
+	}
+
+	public CheckSubmissionResponse checkSubmission(CheckSubmission request) {
+		Question question = questionRepo.findById(request.getQuestionId()).get();
+		String prompt = this.buildEvaluationPrompt(request.getCode(), question.getLanguage(),
+				question.getDescription());
+		String response = geminiService.generateResponse(prompt).replaceAll("(?i)```json", "") // Remove ```json
+				.replaceAll("(?i)```", "") // Remove any remaining ```
+				.trim();
+		CheckSubmissionResponse res = null;
+		try {
+			res = objectMapper.readValue(response, CheckSubmissionResponse.class);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return res;
+	}
+
+	private String buildEvaluationPrompt(String code, String language, String questionDetails) {
+		return """
+				You are a code evaluator assistant. Your task is to analyze the provided code submission and determine whether it is likely to work correctly for the given programming problem.
+
+				You will be given:
+				1. Code (as a string)
+				2. Programming Language
+				3. Problem Description (with sample test cases)
+
+				Your responsibilities:
+				- Respect the language-specific behaviors (e.g., JavaScript arrays can be dynamically expanded with assignment like arr[index] = value).
+				- Do NOT assume bugs unless there's clear evidence from the logic or syntax.
+				- Focus on the problem description and test cases to evaluate correctness.
+				- If the code looks correct and handles given constraints, assume it will work.
+
+				You must respond **in the following JSON format only**:
+
+				{
+				  "willWork": true/false,
+				  "issues": "If it will not work, give a VERY SHORT reason (e.g., syntax error, logic flaw, missing edge case, etc.). If it will work, respond with a message like 'Code will work' or 'Looks good'."
+				}
+
+				---
+
+				Now analyze this submission:
+				Language: %s
+
+				Code:
+				```
+				%s
+				```
+
+				Question:
+				%s
+				"""
+				.formatted(language, code, questionDetails);
 	}
 }

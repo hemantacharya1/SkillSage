@@ -28,6 +28,11 @@ import { useNavigate } from "react-router-dom";
 import { showToast } from "@/utils/toast";
 
 function CandidateInterviewPanel({ interviewId }) {
+  // --- AI Run State ---
+  const [runLoading, setRunLoading] = useState(false);
+  const [runResult, setRunResult] = useState(null);
+  const [runError, setRunError] = useState(null);
+  const runCodeMutation = useMutation();
   const {
     isConnected,
     remoteStreams,
@@ -420,6 +425,70 @@ function CandidateInterviewPanel({ interviewId }) {
               currentQuestionIndex={currentQuestionIndex}
               isRecruiter={false}
             />
+
+            {/* AI RUN BUTTON AND RESULT */}
+            <div className="mt-4 flex flex-col gap-2">
+              <Button
+                onClick={async () => {
+                  setRunLoading(true);
+                  setRunError(null);
+                  setRunResult(null);
+                  try {
+                    const res = await runCodeMutation.mutate({
+                      url: "/api/ai/check-submission",
+                      method: "POST",
+                      data: {
+                        code: code,
+                        questionId: currentQuestion?.id,
+                      },
+                    });
+                    setRunResult(res.data);
+                  } catch (err) {
+                    setRunError(err?.error || err?.message || "Run failed.");
+                  } finally {
+                    setRunLoading(false);
+                  }
+                }}
+                disabled={runLoading || !code.trim() || !currentQuestion?.id}
+                variant="outline"
+              >
+                {runLoading ? (
+                  <span className="flex items-center"><span className="animate-spin mr-2">⏳</span>Running...</span>
+                ) : (
+                  "Run AI Check"
+                )}
+              </Button>
+
+              {runResult && (
+                <div
+                  className={`mt-2 p-3 rounded border text-sm whitespace-pre-line ${
+                    runResult.willWork
+                      ? "bg-green-100 text-green-800 border-green-300"
+                      : "bg-red-100 text-red-800 border-red-300"
+                  }`}
+                >
+                  <strong>
+                    {runResult.willWork
+                      ? "This code will work ✅"
+                      : "This code will NOT work ❌"}
+                  </strong>
+                  {!runResult.willWork && runResult.issues && (
+                    <div className="mt-2">
+                      {typeof runResult.issues === "string"
+                        ? runResult.issues.replace(/\\n/g, "\n")
+                        : Array.isArray(runResult.issues)
+                        ? runResult.issues.join("\n")
+                        : null}
+                    </div>
+                  )}
+                </div>
+              )}
+              {runError && (
+                <div className="mt-2 p-3 rounded bg-red-100 text-red-800 border border-red-300 text-sm">
+                  {runError}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Answer Actions */}
